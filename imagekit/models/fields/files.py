@@ -109,31 +109,34 @@ class ImageSpecFieldFile(ImageFieldFile):
         """
         name = getattr(self, '_name', None)
         if not name:
-            filename = self.source_file.name
-            new_filename = None
-            if filename:
-                cache_to = self.field.cache_to or self._default_cache_to
+            try:# MASSIVE BODGE!
+                filename = self.source_file.name
+                new_filename = None
+                if filename:
+                    cache_to = self.field.cache_to or self._default_cache_to
 
-                if not cache_to:
-                    raise Exception('No cache_to or default_cache_to value'
-                            ' specified')
-                if callable(cache_to):
-                    suggested_extension = \
-                            self.field.generator.suggest_extension(
-                            self.source_file.name)
-                    new_filename = force_unicode(
-                            datetime.datetime.now().strftime(
-                            smart_str(cache_to(self.instance,
-                            self.source_file.name, self.attname,
-                            suggested_extension))))
-                else:
-                    dir_name = os.path.normpath(
-                            force_unicode(datetime.datetime.now().strftime(
-                            smart_str(cache_to))))
-                    filename = os.path.normpath(os.path.basename(filename))
-                    new_filename = os.path.join(dir_name, filename)
+                    if not cache_to:
+                        raise Exception('No cache_to or default_cache_to value'
+                                ' specified')
+                    if callable(cache_to):
+                        suggested_extension = \
+                                self.field.generator.suggest_extension(
+                                self.source_file.name)
+                        new_filename = force_unicode(
+                                datetime.datetime.now().strftime(
+                                smart_str(cache_to(self.instance,
+                                self.source_file.name, self.attname,
+                                suggested_extension))))
+                    else:
+                        dir_name = os.path.normpath(
+                                force_unicode(datetime.datetime.now().strftime(
+                                smart_str(cache_to))))
+                        filename = os.path.normpath(os.path.basename(filename))
+                        new_filename = os.path.join(dir_name, filename)
 
-            self._name = new_filename
+                self._name = new_filename
+            except: # MASSIVE BODGE!
+                self._name = 'name'
         return self._name
 
     @name.setter
